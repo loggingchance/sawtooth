@@ -6,7 +6,7 @@
     <title>Sawtooth Prototype</title>
     <meta
       name="description"
-      content="Sawtooth is a static project estimator prototype with live calculations, validation, saved scenarios, and print-ready summaries."
+      content="Sawtooth is a static primary wood products facility prototype with live production economics, validation, saved scenarios, and print-ready summaries."
     >
     <link rel="stylesheet" href="styles.css">
   </head>
@@ -15,7 +15,7 @@
       <div>
         <p class="eyebrow">Static web prototype</p>
         <h1>Sawtooth</h1>
-        <p class="lede">Build, compare, save, and print a quick project estimate from one resilient page.</p>
+        <p class="lede">Build, compare, save, and print quick production economics for lumber, pallet, firewood, tie, pellet, and other primary wood products operations.</p>
       </div>
       <div class="header-actions" aria-label="Estimate actions">
         <button class="secondary" type="button" id="loadSample">Load Sample Data</button>
@@ -28,8 +28,8 @@
       <section class="panel input-panel" aria-labelledby="estimateHeading">
         <div class="panel-heading">
           <div>
-            <p class="eyebrow">Estimator</p>
-            <h2 id="estimateHeading">Project inputs</h2>
+            <p class="eyebrow">Facility model</p>
+            <h2 id="estimateHeading">Production inputs</h2>
           </div>
           <span class="status-pill" id="saveStatus" aria-live="polite">Ready</span>
         </div>
@@ -37,79 +37,100 @@
         <form id="estimateForm" novalidate>
           <div class="field-grid">
             <label>
-              Project name
-              <input id="projectName" name="projectName" type="text" maxlength="80" required>
-              <span class="field-error" data-error-for="projectName"></span>
+              Facility name
+              <input id="facilityName" name="facilityName" type="text" maxlength="80" required>
+              <span class="field-error" data-error-for="facilityName"></span>
             </label>
 
             <label>
-              Client
-              <input id="clientName" name="clientName" type="text" maxlength="80" required>
-              <span class="field-error" data-error-for="clientName"></span>
-            </label>
-
-            <label>
-              Area
-              <span class="input-with-unit">
-                <input id="area" name="area" type="number" min="50" max="250000" step="1" required>
-                <span>sq ft</span>
-              </span>
-              <span class="field-error" data-error-for="area"></span>
-            </label>
-
-            <label>
-              Base rate
-              <span class="input-with-unit">
-                <input id="baseRate" name="baseRate" type="number" min="1" max="500" step="0.01" required>
-                <span>$/sq ft</span>
-              </span>
-              <span class="field-error" data-error-for="baseRate"></span>
-            </label>
-
-            <label>
-              Complexity
-              <select id="complexity" name="complexity" required>
-                <option value="simple">Simple</option>
-                <option value="standard">Standard</option>
-                <option value="technical">Technical</option>
-                <option value="extreme">Extreme</option>
+              Product line
+              <select id="productLine" name="productLine" required>
+                <option value="grade_lumber">Grade lumber</option>
+                <option value="pallet_stock">Pallet stock</option>
+                <option value="firewood">Firewood</option>
+                <option value="railroad_ties">Railroad ties</option>
+                <option value="pellets">Pellets</option>
               </select>
-              <span class="field-error" data-error-for="complexity"></span>
+              <span class="field-error" data-error-for="productLine"></span>
             </label>
 
             <label>
-              Finish package
-              <select id="finish" name="finish" required>
-                <option value="essential">Essential</option>
-                <option value="durable">Durable</option>
-                <option value="premium">Premium</option>
-              </select>
-              <span class="field-error" data-error-for="finish"></span>
-            </label>
-
-            <label>
-              Crew size
-              <input id="crewSize" name="crewSize" type="number" min="1" max="24" step="1" required>
-              <span class="field-error" data-error-for="crewSize"></span>
-            </label>
-
-            <label>
-              Work days
-              <input id="workDays" name="workDays" type="number" min="1" max="180" step="1" required>
-              <span class="field-error" data-error-for="workDays"></span>
-            </label>
-
-            <label>
-              Labor rate
+              Annual input volume
               <span class="input-with-unit">
-                <input id="laborRate" name="laborRate" type="number" min="15" max="300" step="0.01" required>
-                <span>$/hr</span>
+                <input id="annualInput" name="annualInput" type="number" min="1" max="10000000" step="1" required>
+                <span>input units</span>
               </span>
-              <span class="field-error" data-error-for="laborRate"></span>
+              <span class="field-error" data-error-for="annualInput"></span>
             </label>
 
             <label>
-              Contingency
+              Recovery or yield
+              <span class="input-with-unit">
+                <input id="recoveryRate" name="recoveryRate" type="number" min="1" max="100" step="0.1" required>
+                <span>%</span>
+              </span>
+              <span class="field-error" data-error-for="recoveryRate"></span>
+            </label>
+
+            <label>
+              Output unit
+              <select id="unit" name="unit" required>
+                <option value="MBF">MBF</option>
+                <option value="cords">Cords</option>
+                <option value="tons">Tons</option>
+                <option value="pallets">Pallets</option>
+                <option value="ties">Ties</option>
+              </select>
+              <span class="field-error" data-error-for="unit"></span>
+            </label>
+
+            <label>
+              Selling price
+              <span class="input-with-unit">
+                <input id="sellingPrice" name="sellingPrice" type="number" min="0" max="100000" step="0.01" required>
+                <span>$/unit</span>
+              </span>
+              <span class="field-error" data-error-for="sellingPrice"></span>
+            </label>
+
+            <label>
+              Wood/fiber cost
+              <span class="input-with-unit">
+                <input id="rawMaterialCost" name="rawMaterialCost" type="number" min="0" max="100000" step="0.01" required>
+                <span>$/input</span>
+              </span>
+              <span class="field-error" data-error-for="rawMaterialCost"></span>
+            </label>
+
+            <label>
+              Processing cost
+              <span class="input-with-unit">
+                <input id="processingCost" name="processingCost" type="number" min="0" max="100000" step="0.01" required>
+                <span>$/unit</span>
+              </span>
+              <span class="field-error" data-error-for="processingCost"></span>
+            </label>
+
+            <label>
+              Freight cost
+              <span class="input-with-unit">
+                <input id="freightCost" name="freightCost" type="number" min="0" max="100000" step="0.01" required>
+                <span>$/unit</span>
+              </span>
+              <span class="field-error" data-error-for="freightCost"></span>
+            </label>
+
+            <label>
+              Overhead cost
+              <span class="input-with-unit">
+                <input id="overheadCost" name="overheadCost" type="number" min="0" max="100000" step="0.01" required>
+                <span>$/unit</span>
+              </span>
+              <span class="field-error" data-error-for="overheadCost"></span>
+            </label>
+
+            <label>
+              Risk reserve
               <span class="input-with-unit">
                 <input id="contingency" name="contingency" type="number" min="0" max="35" step="0.5" required>
                 <span>%</span>
@@ -118,21 +139,12 @@
             </label>
 
             <label>
-              Tax rate
+              Market adjustment
               <span class="input-with-unit">
-                <input id="taxRate" name="taxRate" type="number" min="0" max="15" step="0.01" required>
+                <input id="marketAdjustment" name="marketAdjustment" type="number" min="-50" max="50" step="0.5" required>
                 <span>%</span>
               </span>
-              <span class="field-error" data-error-for="taxRate"></span>
-            </label>
-
-            <label>
-              Mobilization
-              <span class="input-with-unit">
-                <input id="mobilization" name="mobilization" type="number" min="0" max="100000" step="1" required>
-                <span>$</span>
-              </span>
-              <span class="field-error" data-error-for="mobilization"></span>
+              <span class="field-error" data-error-for="marketAdjustment"></span>
             </label>
           </div>
 
@@ -147,30 +159,34 @@
         <div class="panel-heading">
           <div>
             <p class="eyebrow">Live summary</p>
-            <h2 id="resultsHeading">Estimate</h2>
+            <h2 id="resultsHeading">Operating snapshot</h2>
           </div>
           <span class="status-pill valid" id="validationSummary">Valid</span>
         </div>
 
         <div class="total-card">
-          <span>Total estimate</span>
-          <strong id="totalEstimate">$0</strong>
+          <span>Operating margin</span>
+          <strong id="operatingMargin">$0</strong>
         </div>
 
         <dl class="result-list">
-          <div><dt>Materials</dt><dd id="materialsCost">$0</dd></div>
-          <div><dt>Labor</dt><dd id="laborCost">$0</dd></div>
-          <div><dt>Mobilization</dt><dd id="mobilizationCost">$0</dd></div>
-          <div><dt>Subtotal</dt><dd id="subtotal">$0</dd></div>
-          <div><dt>Contingency</dt><dd id="contingencyCost">$0</dd></div>
-          <div><dt>Tax</dt><dd id="taxCost">$0</dd></div>
-          <div><dt>Estimated duration</dt><dd id="duration">0 days</dd></div>
-          <div><dt>Price per sq ft</dt><dd id="unitPrice">$0</dd></div>
+          <div><dt>Gross revenue</dt><dd id="grossRevenue">$0</dd></div>
+          <div><dt>Total cost</dt><dd id="totalCost">$0</dd></div>
+          <div><dt>Saleable volume</dt><dd id="saleableVolume">0 units</dd></div>
+          <div><dt>Adjusted price</dt><dd id="adjustedPrice">$0 / unit</dd></div>
+          <div><dt>Wood/fiber cost</dt><dd id="woodFiberCost">$0</dd></div>
+          <div><dt>Conversion cost</dt><dd id="conversionCost">$0</dd></div>
+          <div><dt>Freight cost</dt><dd id="freightCost">$0</dd></div>
+          <div><dt>Overhead cost</dt><dd id="overheadCost">$0</dd></div>
+          <div><dt>Risk reserve</dt><dd id="riskReserve">$0</dd></div>
+          <div><dt>Margin rate</dt><dd id="marginRate">0%</dd></div>
+          <div><dt>Margin per unit</dt><dd id="marginPerUnit">$0 / unit</dd></div>
+          <div><dt>Break-even price</dt><dd id="breakEvenPrice">$0 / unit</dd></div>
         </dl>
 
         <div class="note-block">
           <h3>Print notes</h3>
-          <textarea id="notes" rows="5" maxlength="800" placeholder="Add assumptions, exclusions, or follow-up items."></textarea>
+          <textarea id="notes" rows="5" maxlength="800" placeholder="Add species mix, grade assumptions, log/fiber source, shift schedule, or market notes."></textarea>
         </div>
       </section>
 
@@ -178,7 +194,7 @@
         <div class="panel-heading">
           <div>
             <p class="eyebrow">Local scenarios</p>
-            <h2 id="savedHeading">Saved estimates</h2>
+            <h2 id="savedHeading">Saved runs</h2>
           </div>
           <button class="secondary compact" type="button" id="clearScenarios">Clear</button>
         </div>

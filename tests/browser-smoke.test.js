@@ -9,31 +9,31 @@ async function run() {
   const filePath = `file://${path.resolve(__dirname, "..", "index.html").replace(/\\/g, "/")}`;
 
   await page.goto(filePath);
-  await page.waitForSelector("#totalEstimate");
+  await page.waitForSelector("#operatingMargin");
 
-  assert.equal(await page.locator("#totalEstimate").innerText(), "$179,197");
+  assert.equal(await page.locator("#operatingMargin").innerText(), "-$677,275");
 
   await page.click("#resetEstimate");
   await assertText(page, "#validationSummary", "Needs fixes");
-  await assertText(page, "#totalEstimate", "$0");
+  await assertText(page, "#operatingMargin", "$0");
 
   await page.click("#loadSample");
   await assertText(page, "#validationSummary", "Valid");
-  await assertText(page, "#totalEstimate", "$179,197");
+  await assertText(page, "#operatingMargin", "-$677,275");
 
-  await page.fill("#area", "49");
-  await assertText(page, '[data-error-for="area"]', "Area must be between 50 and 250000.");
+  await page.fill("#annualInput", "0");
+  await assertText(page, '[data-error-for="annualInput"]', "Annual input volume must be between 1 and 10000000.");
   await assertText(page, "#validationSummary", "Needs fixes");
-  await assertText(page, "#totalEstimate", "$0");
+  await assertText(page, "#operatingMargin", "$0");
 
-  await page.fill("#area", "6400");
-  await page.fill("#projectName", "Saved Browser Check");
+  await page.fill("#annualInput", "18000");
+  await page.fill("#facilityName", "Saved Browser Check");
   await page.click("#saveScenario");
   await assertText(page, "#saveStatus", "Scenario saved");
   await assertText(page, ".scenario-load strong", "Saved Browser Check");
 
   const savedCount = await page.evaluate(() => {
-    const saved = JSON.parse(localStorage.getItem("sawtooth.savedScenarios.v1"));
+    const saved = JSON.parse(localStorage.getItem("sawtooth.savedScenarios.v2"));
     return saved.length;
   });
   assert.equal(savedCount, 1);

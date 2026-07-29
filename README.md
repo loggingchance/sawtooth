@@ -1,13 +1,13 @@
 # Sawtooth Static Prototype
 
-Sawtooth is a flat-file web prototype for building, validating, saving, and printing project estimates. It uses only HTML, CSS, and vanilla JavaScript, so it can run locally by opening `index.html` and can be hosted directly from GitHub Pages.
+Sawtooth is a flat-file web prototype for modeling production economics at primary wood products facilities. It is intended for lumber, pallet, firewood, railroad tie, pellet, and similar operations. It uses only HTML, CSS, and vanilla JavaScript, so it can run locally by opening `index.html` and can be hosted directly from GitHub Pages.
 
 ## Features
 
-- Live estimate calculations for materials, labor, mobilization, contingency, tax, total price, unit price, and estimated duration.
+- Live calculations for saleable volume, adjusted selling price, gross revenue, wood/fiber cost, conversion cost, freight, overhead, risk reserve, total cost, operating margin, margin rate, unit margin, and break-even price.
 - Client-side validation with clear field-level messages and display-safe totals when inputs are invalid.
-- Local draft persistence and up to eight saved scenarios using `localStorage`.
-- Print-ready estimate view through the browser print dialog.
+- Local draft persistence and up to eight saved facility runs using `localStorage`.
+- Print-ready operating snapshot through the browser print dialog.
 - Responsive layout for desktop, tablet, and mobile screens.
 - Dependency-free calculation tests using Node.js.
 
@@ -37,7 +37,7 @@ Then open `http://localhost:8000`.
 node tests/calculations.test.js
 ```
 
-The tests cover calculation totals, multipliers, validation errors, and invalid-result handling.
+The tests cover production economics, product-line factors, validation errors, reset behavior, and invalid-result handling.
 
 The browser smoke test covers localStorage scenarios, validation rendering, print media styles, and the mobile layout. It expects Playwright and a local Chromium-compatible browser:
 
