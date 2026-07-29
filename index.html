@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Sawtooth Prototype</title>
+    <meta
+      name="description"
+      content="Sawtooth is a static project estimator prototype with live calculations, validation, saved scenarios, and print-ready summaries."
+    >
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <header class="app-header">
+      <div>
+        <p class="eyebrow">Static web prototype</p>
+        <h1>Sawtooth</h1>
+        <p class="lede">Build, compare, save, and print a quick project estimate from one resilient page.</p>
+      </div>
+      <div class="header-actions" aria-label="Estimate actions">
+        <button class="secondary" type="button" id="resetEstimate">Reset</button>
+        <button class="primary" type="button" id="printEstimate">Print</button>
+      </div>
+    </header>
+
+    <main class="app-shell">
+      <section class="panel input-panel" aria-labelledby="estimateHeading">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Estimator</p>
+            <h2 id="estimateHeading">Project inputs</h2>
+          </div>
+          <span class="status-pill" id="saveStatus" aria-live="polite">Ready</span>
+        </div>
+
+        <form id="estimateForm" novalidate>
+          <div class="field-grid">
+            <label>
+              Project name
+              <input id="projectName" name="projectName" type="text" maxlength="80" required>
+              <span class="field-error" data-error-for="projectName"></span>
+            </label>
+
+            <label>
+              Client
+              <input id="clientName" name="clientName" type="text" maxlength="80" required>
+              <span class="field-error" data-error-for="clientName"></span>
+            </label>
+
+            <label>
+              Area
+              <span class="input-with-unit">
+                <input id="area" name="area" type="number" min="50" max="250000" step="1" required>
+                <span>sq ft</span>
+              </span>
+              <span class="field-error" data-error-for="area"></span>
+            </label>
+
+            <label>
+              Base rate
+              <span class="input-with-unit">
+                <input id="baseRate" name="baseRate" type="number" min="1" max="500" step="0.01" required>
+                <span>$/sq ft</span>
+              </span>
+              <span class="field-error" data-error-for="baseRate"></span>
+            </label>
+
+            <label>
+              Complexity
+              <select id="complexity" name="complexity" required>
+                <option value="simple">Simple</option>
+                <option value="standard">Standard</option>
+                <option value="technical">Technical</option>
+                <option value="extreme">Extreme</option>
+              </select>
+              <span class="field-error" data-error-for="complexity"></span>
+            </label>
+
+            <label>
+              Finish package
+              <select id="finish" name="finish" required>
+                <option value="essential">Essential</option>
+                <option value="durable">Durable</option>
+                <option value="premium">Premium</option>
+              </select>
+              <span class="field-error" data-error-for="finish"></span>
+            </label>
+
+            <label>
+              Crew size
+              <input id="crewSize" name="crewSize" type="number" min="1" max="24" step="1" required>
+              <span class="field-error" data-error-for="crewSize"></span>
+            </label>
+
+            <label>
+              Work days
+              <input id="workDays" name="workDays" type="number" min="1" max="180" step="1" required>
+              <span class="field-error" data-error-for="workDays"></span>
+            </label>
+
+            <label>
+              Labor rate
+              <span class="input-with-unit">
+                <input id="laborRate" name="laborRate" type="number" min="15" max="300" step="0.01" required>
+                <span>$/hr</span>
+              </span>
+              <span class="field-error" data-error-for="laborRate"></span>
+            </label>
+
+            <label>
+              Contingency
+              <span class="input-with-unit">
+                <input id="contingency" name="contingency" type="number" min="0" max="35" step="0.5" required>
+                <span>%</span>
+              </span>
+              <span class="field-error" data-error-for="contingency"></span>
+            </label>
+
+            <label>
+              Tax rate
+              <span class="input-with-unit">
+                <input id="taxRate" name="taxRate" type="number" min="0" max="15" step="0.01" required>
+                <span>%</span>
+              </span>
+              <span class="field-error" data-error-for="taxRate"></span>
+            </label>
+
+            <label>
+              Mobilization
+              <span class="input-with-unit">
+                <input id="mobilization" name="mobilization" type="number" min="0" max="100000" step="1" required>
+                <span>$</span>
+              </span>
+              <span class="field-error" data-error-for="mobilization"></span>
+            </label>
+          </div>
+
+          <div class="form-actions">
+            <button class="secondary" type="button" id="saveDraft">Save Draft</button>
+            <button class="primary" type="button" id="saveScenario">Save Scenario</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="panel results-panel" aria-labelledby="resultsHeading">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Live summary</p>
+            <h2 id="resultsHeading">Estimate</h2>
+          </div>
+          <span class="status-pill valid" id="validationSummary">Valid</span>
+        </div>
+
+        <div class="total-card">
+          <span>Total estimate</span>
+          <strong id="totalEstimate">$0</strong>
+        </div>
+
+        <dl class="result-list">
+          <div><dt>Materials</dt><dd id="materialsCost">$0</dd></div>
+          <div><dt>Labor</dt><dd id="laborCost">$0</dd></div>
+          <div><dt>Mobilization</dt><dd id="mobilizationCost">$0</dd></div>
+          <div><dt>Subtotal</dt><dd id="subtotal">$0</dd></div>
+          <div><dt>Contingency</dt><dd id="contingencyCost">$0</dd></div>
+          <div><dt>Tax</dt><dd id="taxCost">$0</dd></div>
+          <div><dt>Estimated duration</dt><dd id="duration">0 days</dd></div>
+          <div><dt>Price per sq ft</dt><dd id="unitPrice">$0</dd></div>
+        </dl>
+
+        <div class="note-block">
+          <h3>Print notes</h3>
+          <textarea id="notes" rows="5" maxlength="800" placeholder="Add assumptions, exclusions, or follow-up items."></textarea>
+        </div>
+      </section>
+
+      <section class="panel saved-panel" aria-labelledby="savedHeading">
+        <div class="panel-heading">
+          <div>
+            <p class="eyebrow">Local scenarios</p>
+            <h2 id="savedHeading">Saved estimates</h2>
+          </div>
+          <button class="secondary compact" type="button" id="clearScenarios">Clear</button>
+        </div>
+        <ul class="scenario-list" id="scenarioList" aria-live="polite"></ul>
+      </section>
+    </main>
+
+    <template id="scenarioTemplate">
+      <li class="scenario-item">
+        <button type="button" class="scenario-load"></button>
+        <button type="button" class="scenario-delete" aria-label="Delete saved scenario">Delete</button>
+      </li>
+    </template>
+
+    <script src="app.js"></script>
+  </body>
+</html>
