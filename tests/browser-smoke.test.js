@@ -32,6 +32,30 @@ async function run() {
   await assertText(page, "#saveStatus", "Scenario saved");
   await assertText(page, ".scenario-load strong", "Saved Browser Check");
 
+  await page.fill("#notes", "Mixed hardwood pallet cant assumptions.");
+  await page.click("#openReport");
+  await assertText(page, "#reportFacility", "Saved Browser Check");
+  await assertText(page, "#reportMargin", "$759,910");
+  await assertText(page, "#reportBreakEven", "$11 / pallets");
+  await assertText(page, "#reportNotes", "Mixed hardwood pallet cant assumptions.");
+  assert.equal(await page.locator("body").evaluate((node) => node.classList.contains("report-open")), true);
+
+  await page.emulateMedia({ media: "print" });
+  const toolbarDisplay = await page.locator(".report-toolbar").evaluate((node) => getComputedStyle(node).display);
+  assert.equal(toolbarDisplay, "none");
+  await page.emulateMedia({ media: "screen" });
+
+  const htmlDownload = page.waitForEvent("download");
+  await page.click("#downloadHtml");
+  assert.match((await htmlDownload).suggestedFilename(), /saved-browser-check-sawtooth-report\.html/);
+
+  const csvDownload = page.waitForEvent("download");
+  await page.click("#downloadCsv");
+  assert.match((await csvDownload).suggestedFilename(), /saved-browser-check-sawtooth-report\.csv/);
+
+  await page.click("#closeReport");
+  assert.equal(await page.locator("#reportModal").evaluate((node) => node.hidden), true);
+
   const savedCount = await page.evaluate(() => {
     const saved = JSON.parse(localStorage.getItem("sawtooth.savedScenarios.v2"));
     return saved.length;
@@ -41,10 +65,6 @@ async function run() {
   await page.setViewportSize({ width: 390, height: 860 });
   const shellColumns = await page.locator(".app-shell").evaluate((node) => getComputedStyle(node).gridTemplateColumns);
   assert.equal(shellColumns.split(" ").length, 1);
-
-  await page.emulateMedia({ media: "print" });
-  const savedDisplay = await page.locator(".saved-panel").evaluate((node) => getComputedStyle(node).display);
-  assert.equal(savedDisplay, "none");
 
   await browser.close();
 }

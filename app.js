@@ -90,6 +90,24 @@
     }).format(value || 0);
   }
 
+  function filenameSafe(value) {
+    return String(value || "sawtooth-report")
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "")
+      .slice(0, 60) || "sawtooth-report";
+  }
+
+  function escapeHtml(value) {
+    return String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+  }
+
   function validateEstimate(input) {
     const errors = {};
 
@@ -206,6 +224,119 @@
     };
   }
 
+  function buildReportData(input, preparedDate) {
+    const normalized = normalizeEstimate(input);
+    const result = calculateEstimate(normalized);
+    const unit = options.unit[normalized.unit] || "units";
+    const product = options.productLine[normalized.productLine]?.label || normalized.productLine;
+    const date = preparedDate || new Date().toLocaleDateString();
+    const notes = normalized.notes.trim() || "No notes entered.";
+
+    return {
+      normalized,
+      result,
+      unit,
+      product,
+      date,
+      notes,
+      facilityName: normalized.facilityName || "Facility operating report",
+      subtitle: `${product} - ${number(normalized.annualInput)} input units - ${number(normalized.recoveryRate)}% recovery`,
+      rows: [
+        ["Gross revenue", currency(result.grossRevenue)],
+        ["Wood/fiber cost", currency(result.woodFiberCost)],
+        ["Conversion cost", currency(result.conversionCost)],
+        ["Freight cost", currency(result.freightCost)],
+        ["Overhead cost", currency(result.overheadCost)],
+        ["Risk reserve", currency(result.riskReserve)],
+        ["Total cost", currency(result.totalCost)],
+        ["Operating margin", currency(result.operatingMargin)],
+        ["Margin rate", `${number(result.marginRate)}%`],
+        ["Margin per unit", `${currency(result.marginPerUnit)} / ${unit}`],
+        ["Break-even price", `${currency(result.breakEvenPrice)} / ${unit}`]
+      ],
+      csvRows: [
+        ["Facility", normalized.facilityName],
+        ["Product line", product],
+        ["Prepared", date],
+        ["Annual input volume", normalized.annualInput],
+        ["Recovery or yield", `${normalized.recoveryRate}%`],
+        ["Output unit", unit],
+        ["Selling price", normalized.sellingPrice],
+        ["Wood/fiber cost", normalized.rawMaterialCost],
+        ["Processing cost", normalized.processingCost],
+        ["Freight cost", normalized.freightCost],
+        ["Overhead cost", normalized.overheadCost],
+        ["Risk reserve", `${normalized.contingency}%`],
+        ["Market adjustment", `${normalized.marketAdjustment}%`],
+        ["Saleable volume", result.saleableVolume],
+        ["Adjusted price", result.adjustedPrice],
+        ["Gross revenue", result.grossRevenue],
+        ["Total cost", result.totalCost],
+        ["Operating margin", result.operatingMargin],
+        ["Margin rate", `${result.marginRate}%`],
+        ["Margin per unit", result.marginPerUnit],
+        ["Break-even price", result.breakEvenPrice],
+        ["Notes", notes]
+      ]
+    };
+  }
+
+  function buildCsv(report) {
+    return report.csvRows
+      .map((row) => row.map((cell) => `"${String(cell ?? "").replace(/"/g, '""')}"`).join(","))
+      .join("\r\n");
+  }
+
+  function buildStandaloneReportHtml(report) {
+    const tableRows = report.rows
+      .map(([label, value]) => `<tr><th scope="row">${escapeHtml(label)}</th><td>${escapeHtml(value)}</td></tr>`)
+      .join("");
+
+    return `<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>${escapeHtml(report.facilityName)} - Sawtooth Report</title>
+  <style>
+    body { margin: 0; background: #eef2ee; color: #17201b; font-family: Arial, sans-serif; }
+    main { max-width: 900px; margin: 32px auto; background: #fff; padding: 40px; border: 1px solid #d8ded7; }
+    .brand { color: #12483e; font-size: 13px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    h1 { margin: 8px 0 6px; font-size: 32px; }
+    .meta { color: #5e6a63; margin: 0 0 28px; }
+    .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 24px 0; }
+    .kpis div { border: 1px solid #d8ded7; padding: 14px; }
+    .kpis span { display: block; color: #5e6a63; font-size: 12px; font-weight: 700; }
+    .kpis strong { display: block; margin-top: 8px; font-size: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+    th, td { border-bottom: 1px solid #d8ded7; padding: 10px 0; text-align: left; }
+    td { text-align: right; font-weight: 700; }
+    .notes { white-space: pre-wrap; line-height: 1.5; border: 1px solid #d8ded7; padding: 14px; }
+    footer { display: flex; justify-content: space-between; margin-top: 28px; color: #5e6a63; font-size: 12px; }
+    @media print { body { background: #fff; } main { margin: 0; max-width: none; border: 0; } }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="brand">Sawtooth</p>
+    <h1>${escapeHtml(report.facilityName)}</h1>
+    <p class="meta">${escapeHtml(report.subtitle)} | Prepared ${escapeHtml(report.date)}</p>
+    <section class="kpis">
+      <div><span>Operating margin</span><strong>${escapeHtml(currency(report.result.operatingMargin))}</strong></div>
+      <div><span>Margin rate</span><strong>${escapeHtml(number(report.result.marginRate))}%</strong></div>
+      <div><span>Break-even price</span><strong>${escapeHtml(currency(report.result.breakEvenPrice))} / ${escapeHtml(report.unit)}</strong></div>
+      <div><span>Saleable volume</span><strong>${escapeHtml(number(report.result.saleableVolume))} ${escapeHtml(report.unit)}</strong></div>
+    </section>
+    <h2>Revenue And Cost Summary</h2>
+    <table><tbody>${tableRows}</tbody></table>
+    <h2>Notes And Assumptions</h2>
+    <p class="notes">${escapeHtml(report.notes)}</p>
+    <footer><span>Lumbermen OS</span><span>Sawtooth static prototype</span></footer>
+  </main>
+</body>
+</html>`;
+  }
+
   function readStored(key, fallback) {
     try {
       const stored = window.localStorage.getItem(key);
@@ -221,6 +352,18 @@
 
   function removeStored(key) {
     window.localStorage.removeItem(key);
+  }
+
+  function downloadFile(filename, content, type) {
+    const blob = new Blob([content], { type });
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    window.URL.revokeObjectURL(url);
   }
 
   function setupApp(documentRef) {
@@ -249,6 +392,28 @@
     const saveStatus = doc.getElementById("saveStatus");
     const scenarioList = doc.getElementById("scenarioList");
     const scenarioTemplate = doc.getElementById("scenarioTemplate");
+    const reportModal = doc.getElementById("reportModal");
+    const reportFields = {
+      facility: doc.getElementById("reportFacility"),
+      subtitle: doc.getElementById("reportSubtitle"),
+      date: doc.getElementById("reportDate"),
+      margin: doc.getElementById("reportMargin"),
+      marginRate: doc.getElementById("reportMarginRate"),
+      breakEven: doc.getElementById("reportBreakEven"),
+      volume: doc.getElementById("reportVolume"),
+      product: doc.getElementById("reportProduct"),
+      inputVolume: doc.getElementById("reportInputVolume"),
+      recovery: doc.getElementById("reportRecovery"),
+      price: doc.getElementById("reportPrice"),
+      grossRevenue: doc.getElementById("reportGrossRevenue"),
+      woodCost: doc.getElementById("reportWoodCost"),
+      conversionCost: doc.getElementById("reportConversionCost"),
+      freightCost: doc.getElementById("reportFreightCost"),
+      overheadCost: doc.getElementById("reportOverheadCost"),
+      riskReserve: doc.getElementById("reportRiskReserve"),
+      totalCost: doc.getElementById("reportTotalCost"),
+      notes: doc.getElementById("reportNotes")
+    };
 
     function collectInput() {
       return Object.fromEntries(ids.map((id) => [id, elements[id].value]));
@@ -310,6 +475,51 @@
       outputs.breakEvenPrice.textContent = `${currency(result.breakEvenPrice)} / ${unit}`;
 
       writeStored(STORAGE_DRAFT_KEY, input);
+    }
+
+    function populateReport() {
+      const input = collectInput();
+      const report = buildReportData(input);
+      if (!report.result.validation.valid) {
+        update();
+        setStatus("Fix fields first");
+        return null;
+      }
+
+      reportFields.facility.textContent = report.facilityName;
+      reportFields.subtitle.textContent = report.subtitle;
+      reportFields.date.textContent = report.date;
+      reportFields.margin.textContent = currency(report.result.operatingMargin);
+      reportFields.marginRate.textContent = `${number(report.result.marginRate)}%`;
+      reportFields.breakEven.textContent = `${currency(report.result.breakEvenPrice)} / ${report.unit}`;
+      reportFields.volume.textContent = `${number(report.result.saleableVolume)} ${report.unit}`;
+      reportFields.product.textContent = report.product;
+      reportFields.inputVolume.textContent = `${number(report.normalized.annualInput)} input units`;
+      reportFields.recovery.textContent = `${number(report.normalized.recoveryRate)}%`;
+      reportFields.price.textContent = `${currency(report.result.adjustedPrice)} / ${report.unit}`;
+      reportFields.grossRevenue.textContent = currency(report.result.grossRevenue);
+      reportFields.woodCost.textContent = currency(report.result.woodFiberCost);
+      reportFields.conversionCost.textContent = currency(report.result.conversionCost);
+      reportFields.freightCost.textContent = currency(report.result.freightCost);
+      reportFields.overheadCost.textContent = currency(report.result.overheadCost);
+      reportFields.riskReserve.textContent = currency(report.result.riskReserve);
+      reportFields.totalCost.textContent = currency(report.result.totalCost);
+      reportFields.notes.textContent = report.notes;
+      return report;
+    }
+
+    function openReport() {
+      const report = populateReport();
+      if (!report) return;
+      reportModal.hidden = false;
+      doc.body.classList.add("report-open");
+      doc.getElementById("printReport").focus();
+    }
+
+    function closeReport() {
+      reportModal.hidden = true;
+      doc.body.classList.remove("report-open");
+      doc.getElementById("openReport").focus();
     }
 
     function renderScenarios() {
@@ -379,7 +589,27 @@
       setStatus("Sample loaded");
     });
     doc.getElementById("resetEstimate").addEventListener("click", resetEstimate);
-    doc.getElementById("printEstimate").addEventListener("click", () => window.print());
+    doc.getElementById("openReport").addEventListener("click", openReport);
+    doc.getElementById("closeReport").addEventListener("click", closeReport);
+    doc.getElementById("printReport").addEventListener("click", () => {
+      if (populateReport()) window.print();
+    });
+    doc.getElementById("downloadHtml").addEventListener("click", () => {
+      const report = populateReport();
+      if (!report) return;
+      downloadFile(`${filenameSafe(report.facilityName)}-sawtooth-report.html`, buildStandaloneReportHtml(report), "text/html");
+    });
+    doc.getElementById("downloadCsv").addEventListener("click", () => {
+      const report = populateReport();
+      if (!report) return;
+      downloadFile(`${filenameSafe(report.facilityName)}-sawtooth-report.csv`, buildCsv(report), "text/csv");
+    });
+    reportModal.addEventListener("click", (event) => {
+      if (event.target === reportModal) closeReport();
+    });
+    doc.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && !reportModal.hidden) closeReport();
+    });
 
     loadInput(readStored(STORAGE_DRAFT_KEY, defaults));
     renderScenarios();
@@ -398,7 +628,10 @@
       options,
       validateEstimate,
       calculateEstimate,
-      normalizeEstimate
+      normalizeEstimate,
+      buildReportData,
+      buildCsv,
+      buildStandaloneReportHtml
     };
   }
 })();

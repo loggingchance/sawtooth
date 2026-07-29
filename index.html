@@ -20,7 +20,7 @@
       <div class="header-actions" aria-label="Estimate actions">
         <button class="secondary" type="button" id="loadSample">Load Sample Data</button>
         <button class="secondary" type="button" id="resetEstimate">Reset</button>
-        <button class="primary" type="button" id="printEstimate">Print</button>
+        <button class="primary" type="button" id="openReport">Export Report</button>
       </div>
     </header>
 
@@ -201,6 +201,91 @@
         <ul class="scenario-list" id="scenarioList" aria-live="polite"></ul>
       </section>
     </main>
+
+    <div class="modal-backdrop" id="reportModal" hidden>
+      <section class="report-dialog" role="dialog" aria-modal="true" aria-labelledby="reportTitle">
+        <div class="report-toolbar">
+          <div>
+            <p class="eyebrow">Final report</p>
+            <h2 id="reportTitle">Operating report preview</h2>
+          </div>
+          <div class="report-actions">
+            <button class="secondary compact" type="button" id="downloadHtml">Download HTML</button>
+            <button class="secondary compact" type="button" id="downloadCsv">Download CSV</button>
+            <button class="primary compact" type="button" id="printReport">Print / Save PDF</button>
+            <button class="secondary compact" type="button" id="closeReport">Close</button>
+          </div>
+        </div>
+
+        <article class="report-page" id="reportPage">
+          <header class="report-header">
+            <div>
+              <p class="report-brand">Sawtooth</p>
+              <h2 id="reportFacility">Facility operating report</h2>
+              <p id="reportSubtitle">Primary wood products scenario</p>
+            </div>
+            <div class="report-meta">
+              <span>Prepared</span>
+              <strong id="reportDate">--</strong>
+            </div>
+          </header>
+
+          <section class="report-kpis" aria-label="Key performance indicators">
+            <div>
+              <span>Operating margin</span>
+              <strong id="reportMargin">$0</strong>
+            </div>
+            <div>
+              <span>Margin rate</span>
+              <strong id="reportMarginRate">0%</strong>
+            </div>
+            <div>
+              <span>Break-even price</span>
+              <strong id="reportBreakEven">$0 / unit</strong>
+            </div>
+            <div>
+              <span>Saleable volume</span>
+              <strong id="reportVolume">0 units</strong>
+            </div>
+          </section>
+
+          <section class="report-section">
+            <h3>Scenario Inputs</h3>
+            <dl class="report-grid">
+              <div><dt>Product line</dt><dd id="reportProduct">--</dd></div>
+              <div><dt>Annual input</dt><dd id="reportInputVolume">--</dd></div>
+              <div><dt>Recovery / yield</dt><dd id="reportRecovery">--</dd></div>
+              <div><dt>Adjusted price</dt><dd id="reportPrice">--</dd></div>
+            </dl>
+          </section>
+
+          <section class="report-section">
+            <h3>Revenue And Cost Summary</h3>
+            <table class="report-table">
+              <tbody>
+                <tr><th scope="row">Gross revenue</th><td id="reportGrossRevenue">$0</td></tr>
+                <tr><th scope="row">Wood/fiber cost</th><td id="reportWoodCost">$0</td></tr>
+                <tr><th scope="row">Conversion cost</th><td id="reportConversionCost">$0</td></tr>
+                <tr><th scope="row">Freight cost</th><td id="reportFreightCost">$0</td></tr>
+                <tr><th scope="row">Overhead cost</th><td id="reportOverheadCost">$0</td></tr>
+                <tr><th scope="row">Risk reserve</th><td id="reportRiskReserve">$0</td></tr>
+                <tr class="report-total"><th scope="row">Total cost</th><td id="reportTotalCost">$0</td></tr>
+              </tbody>
+            </table>
+          </section>
+
+          <section class="report-section">
+            <h3>Notes And Assumptions</h3>
+            <p class="report-notes" id="reportNotes">No notes entered.</p>
+          </section>
+
+          <footer class="report-footer">
+            <span>Lumbermen OS</span>
+            <span>Sawtooth static prototype</span>
+          </footer>
+        </article>
+      </section>
+    </div>
 
     <template id="scenarioTemplate">
       <li class="scenario-item">

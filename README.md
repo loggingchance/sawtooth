@@ -7,7 +7,9 @@ Sawtooth is a flat-file web prototype for modeling production economics at prima
 - Live calculations for saleable volume, adjusted selling price, gross revenue, wood/fiber cost, conversion cost, freight, overhead, risk reserve, total cost, operating margin, margin rate, unit margin, and break-even price.
 - Client-side validation with clear field-level messages and display-safe totals when inputs are invalid.
 - Local draft persistence and up to eight saved facility runs using `localStorage`.
-- Print-ready operating snapshot through the browser print dialog.
+- Polished final report preview with print/save-to-PDF styling.
+- Standalone HTML report download for sharing or archiving.
+- CSV export for spreadsheet review.
 - Responsive layout for desktop, tablet, and mobile screens.
 - Dependency-free calculation tests using Node.js.
 
@@ -39,7 +41,7 @@ node tests/calculations.test.js
 
 The tests cover production economics, product-line factors, validation errors, reset behavior, and invalid-result handling.
 
-The browser smoke test covers localStorage scenarios, validation rendering, print media styles, and the mobile layout. It expects Playwright and a local Chromium-compatible browser:
+The browser smoke test covers localStorage scenarios, validation rendering, report preview/export controls, print media styles, and the mobile layout. It expects Playwright and a local Chromium-compatible browser:
 
 ```bash
 PLAYWRIGHT_CHROMIUM_EXECUTABLE_PATH="/path/to/chrome" node tests/browser-smoke.test.js
