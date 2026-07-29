@@ -20,6 +20,22 @@
     notes: ""
   };
 
+  const emptyEstimate = {
+    projectName: "",
+    clientName: "",
+    area: "",
+    baseRate: "",
+    complexity: "standard",
+    finish: "durable",
+    crewSize: "",
+    workDays: "",
+    laborRate: "",
+    contingency: "",
+    taxRate: "",
+    mobilization: "",
+    notes: ""
+  };
+
   const options = {
     complexity: {
       simple: 0.95,
@@ -81,7 +97,9 @@
       }
 
       const value = Number(raw);
-      if (!Number.isFinite(value)) {
+      if (raw === "" || raw === null || raw === undefined) {
+        errors[key] = `${rule.label} is required.`;
+      } else if (!Number.isFinite(value)) {
         errors[key] = `${rule.label} must be a number.`;
       } else if (value < rule.min || value > rule.max) {
         errors[key] = `${rule.label} must be between ${rule.min} and ${rule.max}.`;
@@ -94,19 +112,24 @@
   }
 
   function normalizeEstimate(input) {
+    const numberValue = (key) => {
+      const raw = input[key];
+      return raw === "" || raw === null || raw === undefined ? "" : Number(raw);
+    };
+
     return {
       projectName: String(input.projectName || "").trim(),
       clientName: String(input.clientName || "").trim(),
-      area: Number(input.area),
-      baseRate: Number(input.baseRate),
+      area: numberValue("area"),
+      baseRate: numberValue("baseRate"),
       complexity: String(input.complexity),
       finish: String(input.finish),
-      crewSize: Number(input.crewSize),
-      workDays: Number(input.workDays),
-      laborRate: Number(input.laborRate),
-      contingency: Number(input.contingency),
-      taxRate: Number(input.taxRate),
-      mobilization: Number(input.mobilization),
+      crewSize: numberValue("crewSize"),
+      workDays: numberValue("workDays"),
+      laborRate: numberValue("laborRate"),
+      contingency: numberValue("contingency"),
+      taxRate: numberValue("taxRate"),
+      mobilization: numberValue("mobilization"),
       notes: String(input.notes || "")
     };
   }
@@ -172,6 +195,10 @@
     window.localStorage.setItem(key, JSON.stringify(value));
   }
 
+  function removeStored(key) {
+    window.localStorage.removeItem(key);
+  }
+
   function setupApp(documentRef) {
     const doc = documentRef || document;
     const form = doc.getElementById("estimateForm");
@@ -201,9 +228,15 @@
 
     function loadInput(values) {
       ids.forEach((id) => {
-        elements[id].value = values[id] ?? defaults[id];
+        elements[id].value = values[id] ?? "";
       });
       update();
+    }
+
+    function resetEstimate() {
+      removeStored(STORAGE_DRAFT_KEY);
+      loadInput(emptyEstimate);
+      setStatus("Reset");
     }
 
     function setStatus(message) {
@@ -303,7 +336,11 @@
       renderScenarios();
       setStatus("Cleared");
     });
-    doc.getElementById("resetEstimate").addEventListener("click", () => loadInput(defaults));
+    doc.getElementById("loadSample").addEventListener("click", () => {
+      loadInput(defaults);
+      setStatus("Sample loaded");
+    });
+    doc.getElementById("resetEstimate").addEventListener("click", resetEstimate);
     doc.getElementById("printEstimate").addEventListener("click", () => window.print());
 
     loadInput(readStored(STORAGE_DRAFT_KEY, defaults));
@@ -319,6 +356,7 @@
       STORAGE_DRAFT_KEY,
       STORAGE_SCENARIOS_KEY,
       defaults,
+      emptyEstimate,
       options,
       validateEstimate,
       calculateEstimate,

@@ -13,6 +13,14 @@ async function run() {
 
   assert.equal(await page.locator("#totalEstimate").innerText(), "$179,197");
 
+  await page.click("#resetEstimate");
+  await assertText(page, "#validationSummary", "Needs fixes");
+  await assertText(page, "#totalEstimate", "$0");
+
+  await page.click("#loadSample");
+  await assertText(page, "#validationSummary", "Valid");
+  await assertText(page, "#totalEstimate", "$179,197");
+
   await page.fill("#area", "49");
   await assertText(page, '[data-error-for="area"]', "Area must be between 50 and 250000.");
   await assertText(page, "#validationSummary", "Needs fixes");

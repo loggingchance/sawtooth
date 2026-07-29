@@ -1,5 +1,5 @@
 const assert = require("node:assert/strict");
-const { calculateEstimate, defaults, validateEstimate } = require("../app");
+const { calculateEstimate, defaults, emptyEstimate, validateEstimate } = require("../app");
 
 function test(name, fn) {
   try {
@@ -72,4 +72,14 @@ test("invalid estimates return zeroed display-safe totals", () => {
   assert.equal(result.validation.valid, false);
   assert.equal(result.total, 0);
   assert.equal(result.unitPrice, 0);
+});
+
+test("empty reset state is invalid and display-safe", () => {
+  const result = calculateEstimate(emptyEstimate);
+
+  assert.equal(result.validation.valid, false);
+  assert.equal(result.total, 0);
+  assert.equal(result.unitPrice, 0);
+  assert.match(result.validation.errors.projectName, /required/);
+  assert.match(result.validation.errors.area, /required/);
 });
