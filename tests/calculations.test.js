@@ -15,19 +15,19 @@ test("calculates the default facility economics", () => {
   const result = calculateEstimate(defaults);
 
   assert.equal(result.validation.valid, true);
-  assert.equal(result.saleableVolume, 11160);
-  assert.equal(result.adjustedPrice, 556.2);
-  assert.equal(result.grossRevenue, 6207192);
-  assert.equal(result.woodFiberCost, 4410000);
-  assert.equal(result.conversionCost, 1316880);
-  assert.equal(result.freightCost, 401760);
-  assert.equal(result.overheadCost, 491040);
-  assert.equal(result.riskReserve, 264787.2);
-  assert.equal(result.totalCost, 6884467.2);
-  assert.equal(result.operatingMargin, -677275.2);
-  assert.equal(result.marginRate, -10.91);
-  assert.equal(result.marginPerUnit, -60.69);
-  assert.equal(result.breakEvenPrice, 616.89);
+  assert.equal(result.saleableVolume, 187200);
+  assert.equal(result.adjustedPrice, 14.91);
+  assert.equal(result.grossRevenue, 2791152);
+  assert.equal(result.woodFiberCost, 1008000);
+  assert.equal(result.conversionCost, 580320);
+  assert.equal(result.freightCost, 224640);
+  assert.equal(result.overheadCost, 159120);
+  assert.equal(result.riskReserve, 59162.4);
+  assert.equal(result.totalCost, 2031242.4);
+  assert.equal(result.operatingMargin, 759909.6);
+  assert.equal(result.marginRate, 27.23);
+  assert.equal(result.marginPerUnit, 4.06);
+  assert.equal(result.breakEvenPrice, 10.85);
 });
 
 test("applies product and market factors", () => {

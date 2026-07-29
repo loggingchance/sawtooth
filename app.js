@@ -5,18 +5,18 @@
   const STORAGE_SCENARIOS_KEY = "sawtooth.savedScenarios.v2";
 
   const defaults = {
-    facilityName: "Sawtooth Mill",
-    productLine: "grade_lumber",
-    annualInput: 18000,
-    recoveryRate: 62,
-    unit: "MBF",
-    sellingPrice: 540,
-    rawMaterialCost: 245,
-    processingCost: 118,
-    freightCost: 36,
-    overheadCost: 44,
-    contingency: 4,
-    marketAdjustment: 3,
+    facilityName: "Cascade Pallet & Lumber",
+    productLine: "pallet_stock",
+    annualInput: 240000,
+    recoveryRate: 78,
+    unit: "pallets",
+    sellingPrice: 18,
+    rawMaterialCost: 4.2,
+    processingCost: 3.1,
+    freightCost: 1.2,
+    overheadCost: 0.85,
+    contingency: 3,
+    marketAdjustment: 1,
     notes: ""
   };
 

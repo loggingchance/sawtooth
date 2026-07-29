@@ -11,7 +11,7 @@ async function run() {
   await page.goto(filePath);
   await page.waitForSelector("#operatingMargin");
 
-  assert.equal(await page.locator("#operatingMargin").innerText(), "-$677,275");
+  assert.equal(await page.locator("#operatingMargin").innerText(), "$759,910");
 
   await page.click("#resetEstimate");
   await assertText(page, "#validationSummary", "Needs fixes");
@@ -19,14 +19,14 @@ async function run() {
 
   await page.click("#loadSample");
   await assertText(page, "#validationSummary", "Valid");
-  await assertText(page, "#operatingMargin", "-$677,275");
+  await assertText(page, "#operatingMargin", "$759,910");
 
   await page.fill("#annualInput", "0");
   await assertText(page, '[data-error-for="annualInput"]', "Annual input volume must be between 1 and 10000000.");
   await assertText(page, "#validationSummary", "Needs fixes");
   await assertText(page, "#operatingMargin", "$0");
 
-  await page.fill("#annualInput", "18000");
+  await page.fill("#annualInput", "240000");
   await page.fill("#facilityName", "Saved Browser Check");
   await page.click("#saveScenario");
   await assertText(page, "#saveStatus", "Scenario saved");
